@@ -26,10 +26,46 @@ import numpy as np
 import argparse
 from metrics import getContTable, getContTableTotals, getMismatchMatrix, getAdjRand, getSimpsons, getWallace, getAdjustedWallace
 import textwrap
+import random
 
 
 # functions	----------
 
+def rm_redundant(matrix, log):
+	""" determine the most discriminatory cut-off
+	and remove redundant samples """
+	
+	# what is the most discriminatory column?
+	
+	max_size,main_col = 0,""
+	for col in matrix.columns[1:]:
+		size = len(set(matrix[col].values.tolist()))
+		if size > max_size:
+			max_size,main_col = size,col
+	print("\tThe most discriminatory column found was " + main_col)
+	print("\tThe most discriminatory column found was " + main_col, file = log)
+	
+	# get samples
+	
+	final_samples = []
+	for cluster in set(matrix[main_col].values.tolist()):
+		flt_data = matrix[matrix[main_col] == cluster]
+		selected_sample = random.choice(flt_data[flt_data.columns[0]].values.tolist())
+		final_samples.append(selected_sample)
+	
+	print(len(final_samples), max_size)
+	if len(final_samples) != max_size:
+		print("\tSampling got more samples than clusters... something went wrong :-(")
+		print("\tSampling got more samples than clusters... something went wrong :-(", file = log)
+		sys.exit()
+	
+	# final matrix
+	
+	matrix = matrix[matrix[matrix.columns[0]].isin(final_samples)]
+	
+	return matrix	
+			
+	
 def	order_columns(matrix):
 	""" Order the columns """
 	
@@ -188,7 +224,7 @@ def	get_stability(infile, thr, n, tag, log):
 				i += 1
 				if i > 1:
 					l = line.split("\t")
-					score = float(l[7])
+					score = float(l[6])
 					
 					if score >= float(thr):
 						info = l[0] + "->" + l[1]
@@ -229,6 +265,9 @@ def main():
 									
 									This is a modified version of:
 									https://github.com/jacarrico/ComparingPartitions
+									
+									
+									To 
 
 
 									comparing_partitions_v2.py runs one of two options: 
@@ -264,6 +303,8 @@ def main():
 	parser.add_argument("-n", "--n_obs", dest="n_obs", action="store", default=5, help="Minimum number of sequencial observations to consider an interval for method stability analysis [5]")
 	parser.add_argument("-thr", "--threshold", dest="threshold", action= "store", default=0.99, help="Threshold of Adjusted Wallace score to consider an observation for method stability \
 						analysis [0.99]")
+	parser.add_argument("--keep-redundants", dest="keep_redundants", action= "store_true", help="Set ONLY if you want to keep all samples of each cluster of the most discriminatory partition\
+						 (by default redundant samples are removed to avoid cluster size bias)")
 	parser.add_argument("-log", "--log", dest="log", action= "store", default="log", help="Log file")
 						
 	args = parser.parse_args()
@@ -293,6 +334,14 @@ def main():
 		print("Preparing for comparing methods...")
 		print("Preparing for comparing methods...", file = log)
 		
+		# remove redundant samples
+		
+		if not args.keep_redundants: # needs to remove redundant samples 
+			print("Removing redundant samples...")
+			print("Removing redundant samples...", file = log)
+			matrix1 = rm_redundant(matrix1, log)
+			matrix2 = rm_redundant(matrix2, log)
+			
 		# ordering
 		
 		print("Ordering matrix...")
@@ -357,6 +406,13 @@ def main():
 		print("Preparing for stability analysis...")
 		print("Preparing for stability analysis...", file = log)
 		
+		# remove redundant samples
+		
+		if not args.keep_redundants: # needs to remove redundant samples 
+			print("Removing redundant samples...")
+			print("Removing redundant samples...", file = log)
+			matrix = rm_redundant(matrix, log)
+			
 		# ordering
 		
 		print("Ordering matrix...")
