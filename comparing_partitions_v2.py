@@ -267,7 +267,10 @@ def main():
 									https://github.com/jacarrico/ComparingPartitions
 									
 									
-									To 
+									By default, for the stability analysis, this script searches 
+									for the most discriminatory partition and only keeps one random
+									samples per cluster. This option can be reversed with the option
+									'--keep-redundants'.
 
 
 									comparing_partitions_v2.py runs one of two options: 
@@ -304,7 +307,7 @@ def main():
 	parser.add_argument("-thr", "--threshold", dest="threshold", action= "store", default=0.99, help="Threshold of Adjusted Wallace score to consider an observation for method stability \
 						analysis [0.99]")
 	parser.add_argument("--keep-redundants", dest="keep_redundants", action= "store_true", help="Set ONLY if you want to keep all samples of each cluster of the most discriminatory partition\
-						 (by default redundant samples are removed to avoid cluster size bias)")
+						 (by default redundant samples are removed to avoid the influence of cluster size)")
 	parser.add_argument("-log", "--log", dest="log", action= "store", default="log", help="Log file")
 						
 	args = parser.parse_args()
@@ -334,6 +337,7 @@ def main():
 		print("Preparing for comparing methods...")
 		print("Preparing for comparing methods...", file = log)
 		
+		"""
 		# remove redundant samples
 		
 		if not args.keep_redundants: # needs to remove redundant samples 
@@ -341,7 +345,8 @@ def main():
 			print("Removing redundant samples...", file = log)
 			matrix1 = rm_redundant(matrix1, log)
 			matrix2 = rm_redundant(matrix2, log)
-			
+		"""
+		
 		# ordering
 		
 		print("Ordering matrix...")
