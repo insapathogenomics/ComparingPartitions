@@ -53,7 +53,6 @@ def rm_redundant(matrix, log):
 		selected_sample = random.choice(flt_data[flt_data.columns[0]].values.tolist())
 		final_samples.append(selected_sample)
 	
-	print(len(final_samples), max_size)
 	if len(final_samples) != max_size:
 		print("\tSampling got more samples than clusters... something went wrong :-(")
 		print("\tSampling got more samples than clusters... something went wrong :-(", file = log)
