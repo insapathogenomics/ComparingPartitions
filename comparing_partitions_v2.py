@@ -251,51 +251,42 @@ def main():
 	
 	# define options
 	parser = argparse.ArgumentParser(prog="comparing_partitions_v2.py", formatter_class=argparse.RawDescriptionHelpFormatter, description=textwrap.dedent("""\
-									#################################################################             
-									#                                                               #
-									#                  comparing_partitions_v2.py                   #
-									#                                                               #
-									################################################################# 
+									###############################################################################             
+									#                                                                             #
+									#                         comparing_partitions_v2.py                          #
+									#                                                                             #
+									###############################################################################  
 									                            
-									comparing_partitions_v2 identifies regions of cluster stability 
-									(i.e. cg/wgMLST partition threshold ranges in which cluster 
-									composition is similar)
+									comparing_partitions_v2 identifies regions of cluster stability (i.e. cg/wgMLST 
+									partition threshold ranges in which cluster composition is similar)
 									
 									
 									This is a modified version of:
 									https://github.com/jacarrico/ComparingPartitions
 									
 									
-									By default, for the stability analysis, this script searches 
-									for the most discriminatory partition and only keeps one random
-									samples per cluster. This option can be reversed with the option
-									'--keep-redundants'.
-
+									By default, for the stability analysis, this script searches for the most 
+									discriminatory partition and only keeps one random samples per cluster. This 
+									option can be reversed with the option '--keep-redundants'.
 
 									comparing_partitions_v2.py runs one of two options: 
 									
-									A) comparing partitions of a single method to determine stability 
-									regions (where stability regions correspond to partition 
-									threshold ranges where at least 5 subsequent partitions have an 
-									Adjusted Wallace above 0.99) 
-									comparing_partitions_v2.py -i1 PARTITIONS -o1 0 -a stability 
-									-t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
+									A) comparing partitions of a single method to determine stability regions (where 
+									stability regions correspond to partition threshold ranges where at least 5 
+									subsequent partitions have an Adjusted Wallace above 0.99) 
+									comparing_partitions_v2.py -i1 PARTITIONS -o1 0 -a stability -t OUTPUT_NAME -n 5 
+									-thr 0.99 -log LOG
 
-									B) comparing partitions between two different methods to determine 
-									their congruence
-									comparing_partitions_v2.py -i1 PARTITIONS -i2 PARTITIONS2 -o1 0 
-									-o2 0 -a between_methods -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
+									B) comparing partitions between two different methods to determine their congruence
+									comparing_partitions_v2.py -i1 PARTITIONS -i2 PARTITIONS2 -o1 0 -o2 0 -a 
+									between_methods -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
 									
+									WARNING!! Cluster congruence analysis between different methods is still under 
+									development in the frame of the One Health EJP BeOne project for a major 
+									comparison of surveillance pipelines! So, for now, use it at your own risk!
 									
-									WARNING!! Cluster congruence analysis between different methods
-									is still under development in the frame of the One Health EJP 
-									BeOne project for a major comparison of surveillance pipelines!
-									So, for now, use it at your own risk!
-									
-									
-									
-									
-									-----------------------------------------------------------------"""))
+									-------------------------------------------------------------------------------"""))
+	
 	parser.add_argument("-i1", "--input1", dest="input1", action= "store", required=True, help="[MANDATORY] Input matrix 1 (table with partitions)")
 	parser.add_argument("-i2", "--input2", dest="input2", action= "store", help="Input matrix 2 (table with partitions)")
 	parser.add_argument("-o1", "--order1", dest="order1", action= "store", default=0, required=True, help="Partitions order in matrix 1 (0: min -> max; 1: max -> min) [0]")
