@@ -5,8 +5,17 @@
 Automated run of ComparingPartitions (May 2021) to identify regions of cluster stability (i.e. cg/wgMLST partition ranges in which cluster composition is similar)
 original github repository: https://github.com/jacarrico/ComparingPartitions
 
-Adapted by Veronica Mixao
+By Veronica Mixao
 @INSA
+
+
+comparing_partitions_v2.py runs one of two options: 
+A) comparing partitions of a single method to determine stability regions (where stability regions correspond to partition threshold ranges where 
+at least 5 subsequent partitions have an Adjusted Wallace above 0.99) 
+comparing_partitions_v2.py -i1 PARTITIONS -o1 0 -a stability -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
+
+B) comparing partitions between two different methods to determine their congruence (STILL UNDER DEVELOPMENT... RUN AT YOUR OWN RISK)
+comparing_partitions_v2.py -i1 PARTITIONS -i2 PARTITIONS2 -o1 0 -o2 0 -a between_methods -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
 """
 
 
@@ -18,10 +27,6 @@ import argparse
 from metrics import getContTable, getContTableTotals, getMismatchMatrix, getAdjRand, getSimpsons, getWallace, getAdjustedWallace
 import textwrap
 import random
-
-
-version = "1.0.0"
-last_updated = "2022-12-04"
 
 
 # functions	----------
@@ -121,34 +126,32 @@ def	comparing_methods(matrix1, matrix2, tag, log):
 	Simpsons1 = {} #dictionary with all the Simpsons values for file1 (keys = columns)
 	Simpsons2 = {} #dictionary with all the Simpsons values for file2 (keys = columns)
 	Rand = {} #dictionary with all the Rand metrics (keys = file2)
-	Final_Score = {}
+	final_metrics = {} #dictionary with the sum of Adjusted Wallace 1, Adjusted Wallace 2 and Adjusted Rand
 
 	AdjWallace1["0_method_partition"] = []
 	AdjWallace2["0_method_partition"] = []
 	Wallace1["0_method_partition"] = []
 	Wallace2["0_method_partition"] = []
 	Rand["0_method_partition"] = [] 
-	Final_Score["0_method_partition"] = []
-
+	final_metrics["0_method_partition"] = [] 
 
 	#determine all the columns for the dataframe
 	
 	for col1 in matrix1.columns:
-		AdjWallace2["0_method_partition"].append(col1)
-		Wallace2["0_method_partition"].append(col1)
 		AdjWallace1["0_method_partition"].append(col1)
 		Wallace1["0_method_partition"].append(col1)
+		AdjWallace2["0_method_partition"].append(col1)
+		Wallace2["0_method_partition"].append(col1)
 		Rand["0_method_partition"].append(col1)
-		Final_Score["0_method_partition"].append(col1)
-			
+		final_metrics["0_method_partition"].append(col1)
+		
 	for col2 in matrix2.columns:
 		AdjWallace1[col2] = []
 		Wallace1[col2] = []
 		Rand[col2] = []
 		AdjWallace2[col2] = []
 		Wallace2[col2] = []
-		Final_Score[col2] = []
-		
+		final_metrics[col2] = []
 
 	#performing the comparisons
 		
@@ -164,8 +167,8 @@ def	comparing_methods(matrix1, matrix2, tag, log):
 			abcdn_2 = getMismatchMatrix(cont_2, jcol, icol)
 				
 			#getting rand metric
-			rand_score = getAdjRand(icol,jcol)
-			Rand[col2].append(rand_score)
+			rand_metric = getAdjRand(icol,jcol)
+			Rand[col2].append(rand_metric)
 				
 			#getting simpson's metric
 			sid1 = getSimpsons(icol)
@@ -187,10 +190,10 @@ def	comparing_methods(matrix1, matrix2, tag, log):
 			AdjWallace1[col2].append(AdjustedWallace[0])
 			AdjWallace2[col2].append(AdjustedWallace_2[0])
 			
-			#getting final score
-			score = float(AdjustedWallace) + float(AdjustedWallace_2) + float(rand_score)
-			Final_Score[col2].append(score)
+			#getting final metrics
+			final_score = rand_metric + AdjustedWallace[0] + AdjustedWallace_2[0]
 			
+			final_metrics[col2].append(final_score)
 
 	df_Rand = pandas.DataFrame(data = Rand)
 	df_Simpsons1 = pandas.DataFrame(data = Simpsons1) #needs to be transposed
@@ -199,7 +202,7 @@ def	comparing_methods(matrix1, matrix2, tag, log):
 	df_Wallace2 = pandas.DataFrame(data = Wallace2)
 	df_AdjWallace1 = pandas.DataFrame(data = AdjWallace1)
 	df_AdjWallace2 = pandas.DataFrame(data = AdjWallace2)
-	df_Final_Score = pandas.DataFrame(data = Final_Score)
+	df_final_metrics = pandas.DataFrame(data = final_metrics)
 
 	df_Simpsons1T = df_Simpsons1.T
 	df_Simpsons2T = df_Simpsons2.T
@@ -211,7 +214,7 @@ def	comparing_methods(matrix1, matrix2, tag, log):
 	df_Wallace2.to_csv(tag + "_Wallace2.tsv", index = False, header= True, sep ="\t")
 	df_AdjWallace1.to_csv(tag + "_AdjWallace1.tsv", index = False, header= True, sep ="\t")
 	df_AdjWallace2.to_csv(tag + "_AdjWallace2.tsv", index = False, header= True, sep ="\t")
-	df_Final_Score.to_csv(tag + "_final_score.tsv", index = False, header= True, sep ="\t")
+	df_final_metrics.to_csv(tag + "_final_score.tsv", index = False, header= True, sep ="\t")
 
 
 def	get_stability(infile, thr, n, tag, log):
@@ -275,7 +278,7 @@ def main():
 									
 									
 									By default, for the stability analysis, this script searches for the most 
-									discriminatory partition and only keeps one random sample per cluster. This 
+									discriminatory partition and only keeps one random samples per cluster. This 
 									option can be reversed with the option '--keep-redundants'.
 
 									comparing_partitions_v2.py runs one of two options: 
@@ -322,9 +325,6 @@ def main():
 	print(" ".join(sys.argv))
 	print(" ".join(sys.argv), file = log)
 	
-	print("version", version, "last updated on", last_updated, "\n")
-	print("version", version, "last updated on", last_updated, "\n", file = log)
-	
 	
 	# pipeline comparing methods 	----------
 	
@@ -339,7 +339,7 @@ def main():
 		print("Preparing for comparing methods...")
 		print("Preparing for comparing methods...", file = log)
 		
-		
+		"""
 		# remove redundant samples
 		
 		if not args.keep_redundants: # needs to remove redundant samples 
@@ -347,7 +347,7 @@ def main():
 			print("Removing redundant samples...", file = log)
 			matrix1 = rm_redundant(matrix1, log)
 			matrix2 = rm_redundant(matrix2, log)
-		
+		"""
 		
 		# ordering
 		
