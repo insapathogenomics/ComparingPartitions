@@ -4,16 +4,12 @@
 """
 Automated run of ComparingPartitions (May 2021) to identify regions of cluster stability (i.e. cg/wgMLST partition ranges in which cluster composition is similar)
 original github repository: https://github.com/jacarrico/ComparingPartitions
-
 By Veronica Mixao
 @INSA
-
-
 comparing_partitions_v2.py runs one of two options: 
 A) comparing partitions of a single method to determine stability regions (where stability regions correspond to partition threshold ranges where 
 at least 5 subsequent partitions have an Adjusted Wallace above 0.99) 
 comparing_partitions_v2.py -i1 PARTITIONS -o1 0 -a stability -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
-
 B) comparing partitions between two different methods to determine their congruence (STILL UNDER DEVELOPMENT... RUN AT YOUR OWN RISK)
 comparing_partitions_v2.py -i1 PARTITIONS -i2 PARTITIONS2 -o1 0 -o2 0 -a between_methods -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
 """
@@ -280,7 +276,6 @@ def main():
 									By default, for the stability analysis, this script searches for the most 
 									discriminatory partition and only keeps one random samples per cluster. This 
 									option can be reversed with the option '--keep-redundants'.
-
 									comparing_partitions_v2.py runs one of two options: 
 									
 									A) comparing partitions of a single method to determine stability regions (where 
@@ -288,7 +283,6 @@ def main():
 									subsequent partitions have an Adjusted Wallace above 0.99) 
 									comparing_partitions_v2.py -i1 PARTITIONS -o1 0 -a stability -t OUTPUT_NAME -n 5 
 									-thr 0.99 -log LOG
-
 									B) comparing partitions between two different methods to determine their congruence
 									comparing_partitions_v2.py -i1 PARTITIONS -i2 PARTITIONS2 -o1 0 -o2 0 -a 
 									between_methods -t OUTPUT_NAME -n 5 -thr 0.99 -log LOG
@@ -474,4 +468,3 @@ def main():
 	
 if __name__ == '__main__':
 	main()
-	
