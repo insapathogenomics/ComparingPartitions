@@ -332,7 +332,6 @@ def main():
 			matrix2 = pandas.read_table(args.input2)
 		print("Preparing for comparing methods...")
 		print("Preparing for comparing methods...", file = log)
-		
 		"""
 		# remove redundant samples
 		
@@ -386,6 +385,18 @@ def main():
 		
 		clean_matrix1 = filtered_matrix1.drop(filtered_matrix1.columns[0], axis=1)
 		clean_matrix2 = filtered_matrix2.drop(filtered_matrix2.columns[0], axis=1)
+
+		# removing columns in which all samples form a cluster 
+
+		for col in clean_matrix1.columns:
+			if len(pandas.unique(clean_matrix1[col])) == 1:
+				clean_matrix1 = clean_matrix1.drop(col, axis=1)
+		for col in clean_matrix2.columns:
+			if len(pandas.unique(clean_matrix2[col])) == 1:
+				clean_matrix2 = clean_matrix2.drop(col, axis=1)
+
+		print("\tN partitions matrix 1:", len(clean_matrix1.columns))
+		print("\tN partitions matrix 2:", len(clean_matrix2.columns))
 
 		# comparing methods
 		
